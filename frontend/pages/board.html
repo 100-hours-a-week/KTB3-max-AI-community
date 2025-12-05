@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MDF - Board</title>
+    <style>
+        body {
+            background-color: #fafafa; /* 인스타 느낌의 밝은 회색 배경 */
+            margin: 0;
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* 상단 헤더 */
+        header {
+            width: 100%;
+            background-color: white;
+            border-bottom: 1px solid #dbdbdb;
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+        }
+
+        header h2 { margin: 0; font-size: 20px; }
+        
+        .header-link {
+            text-decoration: none;
+            color: #0095f6;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        /* 피드 컨테이너 */
+        #feed-container {
+            width: 100%;
+            max-width: 470px; /* 인스타그램 피드 너비와 유사 */
+            margin-top: 20px;
+            padding-bottom: 50px;
+        }
+
+        /* 게시글 카드 스타일 */
+        .post-card {
+            background-color: white;
+            border: 1px solid #dbdbdb;
+            border-radius: 3px;
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        /* 게시글 헤더 (닉네임, 시간, 삭제버튼) */
+        .post-header {
+            padding: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #efefef;
+        }
+        
+        .user-info {
+            display: flex;
+            flex-direction: column;
+        }
+        .nickname { font-weight: bold; font-size: 14px; color: #262626; }
+        .timestamp { font-size: 11px; color: #8e8e8e; margin-top: 2px; }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #ed4956;
+            font-size: 12px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* 게시글 비디오 */
+        .post-video-container {
+            width: 100%;
+            background-color: black;
+            /* 영상 비율 유지 혹은 꽉 채우기 */
+            display: flex; 
+            justify-content: center;
+            align-items: center;
+        }
+        video {
+            width: 100%;
+            max-height: 500px;
+            display: block;
+        }
+
+        /* 게시글 내용 */
+        .post-content {
+            padding: 14px;
+            font-size: 14px;
+            color: #262626;
+            line-height: 1.5;
+        }
+
+        /* 삭제 비밀번호 확인 모달 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.6);
+        }
+        .modal-content {
+            background-color: white;
+            margin: 20% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 300px;
+            text-align: center;
+        }
+        .modal-content h3 { margin-top: 0; font-size: 16px; }
+        .modal-content input {
+            width: 80%;
+            padding: 8px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .modal-btns { display: flex; justify-content: space-around; margin-top: 10px; }
+        .modal-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn-cancel { background-color: #efefef; }
+        .btn-confirm { background-color: #ed4956; color: white; }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <h2>MDF Board</h2>
+        <div class="header-btns">
+            <!-- 메인으로 이동 -->
+            <button class="nav-btn" onclick="location.href='/'">메인으로</button>
+            <!-- 스트리밍으로 이동 (강조 스타일) -->
+            <button class="nav-btn btn-primary" onclick="location.href='/stream'">영상 스트리밍</button>
+        </div>
+    </header>
+
+    <div id="feed-container">
+        <!-- 게시글들이 여기에 자바스크립트로 추가됩니다 -->
+        <div style="text-align: center; margin-top: 50px; color: #888;">게시글을 불러오는 중...</div>
+    </div>
+
+    <!-- 삭제 확인 모달 -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <h3>게시글 삭제</h3>
+            <p style="font-size: 12px; color: #666;">작성 시 입력한 비밀번호를 입력하세요.</p>
+            <input type="password" id="delete-password" placeholder="비밀번호">
+            <div class="modal-btns">
+                <button class="modal-btn btn-cancel" id="btn-cancel-delete">취소</button>
+                <button class="modal-btn btn-confirm" id="btn-confirm-delete">삭제</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const feedContainer = document.getElementById('feed-container');
+        const deleteModal = document.getElementById('deleteModal');
+        const deletePasswordInput = document.getElementById('delete-password');
+        const btnCancelDelete = document.getElementById('btn-cancel-delete');
+        const btnConfirmDelete = document.getElementById('btn-confirm-delete');
+
+        let targetPostId = null; // 삭제할 게시글 ID 저장
+
+        // 1. 게시글 목록 불러오기
+        async function loadPosts() {
+            try {
+                const response = await fetch('/api/posts');
+                const posts = await response.json();
+
+                feedContainer.innerHTML = ''; // 초기화
+
+                if (posts.length === 0) {
+                    feedContainer.innerHTML = '<div style="text-align: center; margin-top: 50px;">등록된 게시글이 없습니다.</div>';
+                    return;
+                }
+
+                posts.forEach(post => {
+                    const postElement = createPostElement(post);
+                    feedContainer.appendChild(postElement);
+                    // 생성된 비디오 요소를 Observer에 등록 (자동 재생용)
+                    const videoEl = postElement.querySelector('video');
+                    observer.observe(postElement); // 게시글 카드 자체를 관찰
+                });
+
+            } catch (error) {
+                console.error("게시글 로드 실패:", error);
+                feedContainer.innerHTML = '<div style="text-align: center; color: red;">게시글을 불러오지 못했습니다.</div>';
+            }
+        }
+
+        // 2. 게시글 HTML 생성 함수
+        function createPostElement(post) {
+            const div = document.createElement('div');
+            div.className = 'post-card';
+            
+            // 삭제 버튼은 본인 비밀번호를 아는 사람만 누를 수 있으므로 일단 모두에게 노출 (누르면 비번 물어봄)
+            div.innerHTML = `
+                <div class="post-header">
+                    <div class="user-info">
+                        <span class="nickname">${post.nickname}</span>
+                        <span class="timestamp">${post.created_at}</span>
+                    </div>
+                    <button class="delete-btn" onclick="openDeleteModal(${post.id})">삭제</button>
+                </div>
+                <div class="post-video-container">
+                    <video loop muted playsinline>
+                        <source src="/videos/${post.video_filename}" type="video/mp4">
+                    </video>
+                </div>
+                <div class="post-content">
+                    <span style="font-weight: bold; margin-right: 5px;">${post.nickname}</span>
+                    ${post.content}
+                </div>
+            `;
+            return div;
+        }
+
+        // 3. 스크롤 자동 재생 (Intersection Observer)
+        // 화면 중앙에 게시글이 오면 재생, 벗어나면 정지
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.6 // 게시글의 60% 이상이 화면에 보일 때 트리거
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                const video = entry.target.querySelector('video');
+                if (!video) return;
+
+                if (entry.isIntersecting) {
+                    video.play().catch(e => console.log("자동 재생 차단됨 (사용자 인터랙션 필요 가능성):", e));
+                } else {
+                    video.pause();
+                }
+            });
+        }, observerOptions);
+
+
+        // 4. 삭제 모달 관련 로직
+        window.openDeleteModal = function(postId) {
+            targetPostId = postId;
+            deletePasswordInput.value = ''; // 입력창 초기화
+            deleteModal.style.display = 'block';
+            deletePasswordInput.focus();
+        };
+
+        function closeDeleteModal() {
+            deleteModal.style.display = 'none';
+            targetPostId = null;
+        }
+
+        btnCancelDelete.addEventListener('click', closeDeleteModal);
+
+        // 삭제 확인 버튼 클릭
+        btnConfirmDelete.addEventListener('click', async () => {
+            const password = deletePasswordInput.value;
+            if (!password) {
+                alert("비밀번호를 입력하세요.");
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/posts/${targetPostId}`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password: password })
+                });
+
+                if (response.ok) {
+                    alert("삭제되었습니다.");
+                    closeDeleteModal();
+                    loadPosts(); // 목록 새로고침
+                } else {
+                    // 401 Unauthorized 등
+                    alert("비밀번호가 일치하지 않거나 삭제에 실패했습니다.");
+                }
+            } catch (error) {
+                console.error("삭제 요청 에러:", error);
+                alert("서버 통신 오류");
+            }
+        });
+
+        // 모달 바깥 클릭 시 닫기
+        window.onclick = function(event) {
+            if (event.target == deleteModal) {
+                closeDeleteModal();
+            }
+        }
+
+        // 페이지 로드 시 실행
+        loadPosts();
+
+    </script>
+</body>
+</html>
