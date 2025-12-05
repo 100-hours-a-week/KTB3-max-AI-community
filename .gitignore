@@ -1,1 +1,86 @@
+# =====================================
+# OS 시스템 파일
+# =====================================
 .DS_Store
+
+# =====================================
+# Python / FastAPI
+# =====================================
+
+# Python 캐시
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# 가상환경
+venv/
+env/
+.venv/
+ENV/
+Env/
+
+# 패키지 빌드 결과물
+build/
+dist/
+*.egg-info/
+*.egg
+
+# 환경변수 파일
+.env
+.env.*
+
+# PyInstaller
+*.spec
+
+# MyPy / Pyright / 타입체커
+.mypy_cache/
+.pyre/
+.pytype/
+
+# =====================================
+# Frontend (Vanilla JS, HTML, CSS)
+# =====================================
+
+# Node 환경 (있을 경우)
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# 빌드/번들 산출물 (Parcel, Webpack 등 사용 시)
+public/build/
+public/dist/
+dist/
+*.map
+
+# =====================================
+# 에디터 / IDE 설정 파일
+# =====================================
+
+# VSCode
+.vscode/
+
+# PyCharm / IntelliJ
+.idea/
+
+# Jupyter notebook
+.ipynb_checkpoints/
+
+# =====================================
+# 로그 & 임시 파일
+# =====================================
+*.log
+*.tmp
+*.swp
+*.bak
+
+# =====================================
+# 배포 관련
+# =====================================
+# Uvicorn / Gunicorn PID 파일
+*.pid
+
+# Docker
+docker-compose.override.yml
+.env.docker

@@ -2,8 +2,8 @@
 # 영상 스트리밍 및 녹화 관리 모듈
 
 import cv2
-from ..yolo_model.detector import ObjectDetector # 분리한 이미지 처리 모듈 import
-from .VideoRecorder import VideoRecorder # VideoRecorder 클래스 import
+from backend.yolo import ObjectDetector # 분리한 이미지 처리 모듈 import
+from .video_recorder import VideoRecorder # VideoRecorder 클래스 import
 
 # 전역 Detector 객체 생성, 서버가 시작될 때 한번만 AI모델이 로드됨
 detector = ObjectDetector()
