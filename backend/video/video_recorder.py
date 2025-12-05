@@ -83,11 +83,18 @@ class VideoRecorder:
                 self.event_id = mouse_log.insert_event(self.start_time) #`database.py`의 insert_event 함수 호출
                 # 비디오 파일 생성 준비
                 self.filename = f"mouse_{self.start_time.strftime('%Y%m%d_%H%M%S')}.mp4" # 파일 이름
-                filepath = os.path.join(VIDEO_DIR, self.filename) # 비디오 저장 파일 경로 지정                
-                # 코덱 및 VideoWriter 설정 (mp4v 권장)
-                fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-                # FPS는 30으로 설정 (실제 카메라 성능에 따라 조절)
-                self.out = cv2.VideoWriter(filepath, fourcc, 30.0, (width, height))
+                filepath = os.path.join(VIDEO_DIR, self.filename) # 비디오 저장 파일 경로 지정      
+
+                # [수정됨] 웹 브라우저 호환성을 위해 코덱을 mp4v에서 avc1(H.264)로 변경
+                # Mac에서는 기본 지원, Windows 등에서는 openh264 dll 필요할 수 있음
+                try:
+                    fourcc = cv2.VideoWriter_fourcc(*'avc1')
+                    self.out = cv2.VideoWriter(filepath, fourcc, 30.0, (width, height))
+                except Exception as e:
+                    print(f"AVC1 코덱 설정 실패 (mp4v로 폴백): {e}")
+                    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+                    self.out = cv2.VideoWriter(filepath, fourcc, 30.0, (width, height))
+
                 print(f"마우스 탐지 이벤트 {self.event_id} 시작, {self.filename} 기록중")
         
         # 3. 쥐가 탐지되었지만 녹화중일 경우
