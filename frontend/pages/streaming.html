@@ -10,55 +10,39 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            height: 100vh;
             margin: 0;
+            padding-bottom: 50px;
             font-family: sans-serif;
         }
 
-        /* 컨트롤 영역 (카메라 선택 등) */
+        /* 컨트롤 영역 */
         .controls {
-            margin-bottom: 20px;
+            margin: 20px 0;
             display: flex;
             gap: 10px;
             align-items: center;
         }
+        select { padding: 5px 10px; font-size: 16px; }
 
-        select {
-            padding: 5px 10px;
-            font-size: 16px;
-        }
-
-        /* 스트리밍 영상 스타일 */
+        /* 스트리밍 영상 */
         #video-container {
             width: 80%;
             max-width: 800px;
-            aspect-ratio: 16 / 9; /* 영상 비율 유지 */
+            aspect-ratio: 16 / 9;
             border: 2px solid #333;
             background-color: #000;
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
+            margin-bottom: 30px;
         }
-
-        #video-stream {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            display: block;
-        }
-
-        /* 에러 메시지 표시용 */
-        #error-msg {
-            color: white;
-            position: absolute;
-            display: none; /* 기본 숨김 */
-        }
+        #video-stream { width: 100%; height: 100%; object-fit: contain; display: block; }
+        #error-msg { color: white; position: absolute; display: none; }
 
         /* 뒤로가기 버튼 */
         .back-btn {
-            margin-top: 20px;
+            margin-bottom: 20px;
             padding: 10px 20px;
             cursor: pointer;
             border: 1px solid #000;
@@ -66,66 +50,217 @@
             text-decoration: none;
             color: black;
         }
-        .back-btn:hover {
-            background-color: #ddd;
+        .back-btn:hover { background-color: #ddd; }
+
+        /* --- [추가] 로그 테이블 스타일 --- */
+        .log-section {
+            width: 80%;
+            max-width: 800px;
+            margin-top: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        .check-btn {
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .check-btn:hover { background-color: #0056b3; }
+        .check-btn:disabled { background-color: #ccc; cursor: not-allowed; }
+
+        /* --- [추가] 모달(팝업) 스타일 --- */
+        .modal {
+            display: none; /* 기본적으로 숨김 */
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7); /* 반투명 검은 배경 */
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 60%;
+            max-width: 700px;
+            text-align: center;
+            position: relative;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover { color: black; }
+        video {
+            width: 100%;
+            margin-top: 15px;
         }
     </style>
 </head>
 <body>
 
-    <!-- 상단 컨트롤: 카메라 선택 -->
     <div class="controls">
         <label for="cam-select">카메라 선택:</label>
         <select id="cam-select">
             <option value="0" selected>Camera 0 (내장/기본)</option>
             <option value="1">Camera 1 (외부)</option>
-            <option value="99">Camera 99 (테스트/오류확인)</option>
+            <option value="99">Camera 99 (테스트)</option>
         </select>
         <button id="btn-refresh">적용</button>
     </div>
 
-    <!-- 영상 영역 -->
     <div id="video-container">
-        <!-- 초기 소스는 0번 카메라 -->
         <img id="video-stream" src="/video_feed?cam_index=0" alt="Live Video Stream">
         <div id="error-msg">카메라를 찾을 수 없습니다.</div>
     </div>
 
-    <!-- 메인으로 돌아가기 -->
     <a href="/" class="back-btn">메인으로 돌아가기</a>
 
+    <!-- [추가] 탐지 로그 테이블 섹션 -->
+    <div class="log-section">
+        <h3>🚨 최근 탐지 로그 (실시간 아님, 새로고침 필요)</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>시작 시간</th>
+                    <th>종료 시간</th>
+                    <th>이동 경로</th>
+                    <th>비디오</th>
+                </tr>
+            </thead>
+            <tbody id="log-body">
+                <!-- 자바스크립트로 데이터가 여기에 들어감 -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- [추가] 비디오 재생 모달창 -->
+    <div id="videoModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3 id="modal-title">녹화 영상 재생</h3>
+            <video id="modal-player" controls>
+                <source src="" type="video/mp4">
+                브라우저가 비디오 태그를 지원하지 않습니다.
+            </video>
+        </div>
+    </div>
+
     <script>
+        // --- 1. 기존 스트리밍 로직 ---
         const camSelect = document.getElementById('cam-select');
         const btnRefresh = document.getElementById('btn-refresh');
         const videoStream = document.getElementById('video-stream');
         const errorMsg = document.getElementById('error-msg');
 
-        // 카메라 변경 버튼 클릭 시
         btnRefresh.addEventListener('click', () => {
             const camIndex = camSelect.value;
-            changeCamera(camIndex);
-        });
-
-        // 카메라 변경 함수
-        function changeCamera(index) {
-            // 이미지 소스를 잠시 비웠다가 다시 설정 (새로고침 효과)
             videoStream.style.display = 'none';
             errorMsg.style.display = 'none';
-            
-            // 이미지 src를 변경하여 서버에 새로운 요청 전송
-            // 타임스탬프를 넣어 캐시 방지
-            const newSrc = `/video_feed?cam_index=${index}&t=${new Date().getTime()}`;
-            
-            videoStream.src = newSrc;
+            videoStream.src = `/video_feed?cam_index=${camIndex}&t=${new Date().getTime()}`;
             videoStream.style.display = 'block';
-        }
+        });
 
-        // 이미지 로드 에러 처리 (서버에서 503 등을 보냈을 때 <img> 태그는 엑박이 뜨므로 처리)
         videoStream.addEventListener('error', () => {
             videoStream.style.display = 'none';
             errorMsg.style.display = 'block';
             errorMsg.innerText = `Camera ${camSelect.value} 연결 실패`;
         });
+
+        // --- 2. [추가] 로그 테이블 & 모달 로직 ---
+        const logBody = document.getElementById('log-body');
+        const modal = document.getElementById('videoModal');
+        const modalPlayer = document.getElementById('modal-player');
+        const closeModal = document.querySelector('.close');
+
+        // (1) 로그 데이터 불러오기 함수
+        async function fetchLogs() {
+            try {
+                const response = await fetch('/api/logs'); // 서버 API 호출
+                const data = await response.json();
+                
+                logBody.innerHTML = ''; // 기존 내용 초기화
+
+                data.forEach(row => {
+                    const tr = document.createElement('tr');
+                    
+                    // 비디오 파일이 없거나 녹화 중(종료시간 없음)이면 버튼 비활성화
+                    const isVideoAvailable = row.video_filename && row.end_time;
+                    
+                    tr.innerHTML = `
+                        <td>${row.id}</td>
+                        <td>${row.start_time}</td>
+                        <td>${row.end_time || "녹화 중..."}</td>
+                        <td>${row.path_log || "-"}</td>
+                        <td>
+                            <button 
+                                class="check-btn" 
+                                onclick="openModal('${row.video_filename}')"
+                                ${isVideoAvailable ? '' : 'disabled'}
+                            >
+                                비디오 확인
+                            </button>
+                        </td>
+                    `;
+                    logBody.appendChild(tr);
+                });
+            } catch (error) {
+                console.error('로그 불러오기 실패:', error);
+            }
+        }
+
+        // (2) 모달 열기 함수 (전역 호출을 위해 window에 등록)
+        window.openModal = function(filename) {
+            if (!filename) return;
+            // 서버에 마운트된 /videos 경로 사용
+            modalPlayer.src = `/videos/${filename}`;
+            modal.style.display = "block";
+            modalPlayer.play(); // 자동 재생
+        };
+
+        // (3) 모달 닫기 로직
+        closeModal.onclick = function() {
+            modal.style.display = "none";
+            modalPlayer.pause(); // 닫으면 재생 중지
+            modalPlayer.src = ""; // 소스 초기화
+        }
+
+        // 모달 바깥 영역 클릭 시 닫기
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+                modalPlayer.pause();
+                modalPlayer.src = "";
+            }
+        }
+
+        // 페이지 로드 시 로그 가져오기 실행
+        fetchLogs();
+        // [추가] 1초(1000ms)마다 로그 리스트 자동 갱신 함수 실행
+        setInterval(fetchLogs, 1000);
     </script>
 </body>
 </html>
