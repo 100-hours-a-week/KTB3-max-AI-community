@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MDF - Live Stream</title>
+    <style>
+        body {
+            background-color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            font-family: sans-serif;
+        }
+
+        /* 컨트롤 영역 (카메라 선택 등) */
+        .controls {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        select {
+            padding: 5px 10px;
+            font-size: 16px;
+        }
+
+        /* 스트리밍 영상 스타일 */
+        #video-container {
+            width: 80%;
+            max-width: 800px;
+            aspect-ratio: 16 / 9; /* 영상 비율 유지 */
+            border: 2px solid #333;
+            background-color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        #video-stream {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+
+        /* 에러 메시지 표시용 */
+        #error-msg {
+            color: white;
+            position: absolute;
+            display: none; /* 기본 숨김 */
+        }
+
+        /* 뒤로가기 버튼 */
+        .back-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            cursor: pointer;
+            border: 1px solid #000;
+            background-color: #f0f0f0;
+            text-decoration: none;
+            color: black;
+        }
+        .back-btn:hover {
+            background-color: #ddd;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 상단 컨트롤: 카메라 선택 -->
+    <div class="controls">
+        <label for="cam-select">카메라 선택:</label>
+        <select id="cam-select">
+            <option value="0" selected>Camera 0 (내장/기본)</option>
+            <option value="1">Camera 1 (외부)</option>
+            <option value="99">Camera 99 (테스트/오류확인)</option>
+        </select>
+        <button id="btn-refresh">적용</button>
+    </div>
+
+    <!-- 영상 영역 -->
+    <div id="video-container">
+        <!-- 초기 소스는 0번 카메라 -->
+        <img id="video-stream" src="/video_feed?cam_index=0" alt="Live Video Stream">
+        <div id="error-msg">카메라를 찾을 수 없습니다.</div>
+    </div>
+
+    <!-- 메인으로 돌아가기 -->
+    <a href="/" class="back-btn">메인으로 돌아가기</a>
+
+    <script>
+        const camSelect = document.getElementById('cam-select');
+        const btnRefresh = document.getElementById('btn-refresh');
+        const videoStream = document.getElementById('video-stream');
+        const errorMsg = document.getElementById('error-msg');
+
+        // 카메라 변경 버튼 클릭 시
+        btnRefresh.addEventListener('click', () => {
+            const camIndex = camSelect.value;
+            changeCamera(camIndex);
+        });
+
+        // 카메라 변경 함수
+        function changeCamera(index) {
+            // 이미지 소스를 잠시 비웠다가 다시 설정 (새로고침 효과)
+            videoStream.style.display = 'none';
+            errorMsg.style.display = 'none';
+            
+            // 이미지 src를 변경하여 서버에 새로운 요청 전송
+            // 타임스탬프를 넣어 캐시 방지
+            const newSrc = `/video_feed?cam_index=${index}&t=${new Date().getTime()}`;
+            
+            videoStream.src = newSrc;
+            videoStream.style.display = 'block';
+        }
+
+        // 이미지 로드 에러 처리 (서버에서 503 등을 보냈을 때 <img> 태그는 엑박이 뜨므로 처리)
+        videoStream.addEventListener('error', () => {
+            videoStream.style.display = 'none';
+            errorMsg.style.display = 'block';
+            errorMsg.innerText = `Camera ${camSelect.value} 연결 실패`;
+        });
+    </script>
+</body>
+</html>
