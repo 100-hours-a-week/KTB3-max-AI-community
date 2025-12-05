@@ -7,7 +7,7 @@ from ultralytics import YOLO #YOLO모델을 불러온다
 # 탐지된 객체에 대해 경고 메시지를 표시한다.
 
 class ObjectDetector:
-    def __init__(self, model_path="./yolo11n.pt"): #YOLO모델 다운로드 혹은 로컬파일 로드 경로 지정
+    def __init__(self, model_path="./backend/yolo/yolo11n.pt"): #YOLO모델 다운로드 혹은 로컬파일 로드 경로 지정
         try:
             self.model = YOLO(model_path)
             self.names = self.model.names #모데리 알고 있는 클래스들의 이름을 딕셔너리 형태로 불러온다
