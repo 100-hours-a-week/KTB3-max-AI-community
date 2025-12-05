@@ -1,8 +1,11 @@
 import sqlite3
 import pandas as pd
+import os
 
-# DB파일 저장 경로
-DB_PATH = "./mouse_log.db" #현재 작업 폴더
+
+DB_DIR = "./DB"
+os.makedirs(DB_DIR, exist_ok=True)  # 폴더만 생성
+DB_PATH = os.path.join(DB_DIR, "mouse_log.db")  # 파일 경로
 
 def init_db():
     """

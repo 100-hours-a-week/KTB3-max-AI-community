@@ -7,7 +7,7 @@ from datetime import datetime #로컬 서버 시간 측정
 
 
 # 영상 저장 폴더 생성
-VIDEO_DIR = './recorded_videos' #현재 backend 작업공간에 생성
+VIDEO_DIR = './DB/recorded_videos' #현재 backend 작업공간에 생성
 os.makedirs(VIDEO_DIR, exist_ok=True)
 
 #영상 저장 클래스-------------------------------------------------------------------
