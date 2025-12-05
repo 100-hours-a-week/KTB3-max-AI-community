@@ -16,6 +16,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)) + "/..")
 from backend.make_db import mouse_log #`mouse_log.py` 모듈 import
 from backend.video import generate_frames #`streaming.py` 모듈에서 영상 스트리밍 함수 import
 from backend.make_db import content_db #`content_db.py` 모듈 import
+from backend.make_db import comment_db #`comment_db.py` 모듈 import
 
 
     
@@ -114,10 +115,18 @@ async def share_post(post: PostModel):
     except Exception as e:
         return JSONResponse(status_code=500, content={"message": str(e)})
 
-# [추가] 게시글 목록 조회 API
+# [수정] 게시글 + 댓글 병합 조회 API
 @app.get("/api/posts")
 async def get_posts():
+    # 1. 모든 게시글 가져오기
     posts = content_db.get_all_posts()
+    
+    # 2. 각 게시글에 해당하는 댓글 가져와서 합치기
+    for post in posts:
+        # post는 딕셔너리 형태
+        comments = comment_db.get_comments_by_post_id(post['id'])
+        post['comments'] = comments # 'comments' 키에 리스트 저장
+        
     return JSONResponse(content=posts)
 
 # [추가] 게시글 삭제 API
@@ -130,6 +139,32 @@ async def delete_post(post_id: int, body: DeleteModel):
         # 비밀번호 불일치 또는 게시글 없음 -> 401 Unauthorized 또는 400 Bad Request
         raise HTTPException(status_code=401, detail="비밀번호가 일치하지 않습니다.")
     
+
+
+# [추가] 댓글 작성용 데이터 모델
+class CommentModel(BaseModel):
+    post_id: int
+    nickname: str
+    content: str
+    password: str
+
+# [추가] 댓글 작성 API
+@app.post("/api/comments")
+async def add_comment(comment: CommentModel):
+    try:
+        comment_db.insert_comment(comment.post_id, comment.nickname, comment.content, comment.password)
+        return {"message": "success"}
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"message": str(e)})
+
+# [추가] 댓글 삭제 API
+@app.delete("/api/comments/{comment_id}")
+async def delete_comment(comment_id: int, body: DeleteModel):
+    success = comment_db.delete_comment(comment_id, body.password)
+    if success:
+        return {"message": "deleted"}
+    else:
+        raise HTTPException(status_code=401, detail="비밀번호 불일치")
 
 if __name__ == "__main__":
     print("서버 시작: http://localhost:8000")
