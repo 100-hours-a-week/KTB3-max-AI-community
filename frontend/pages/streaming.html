@@ -15,7 +15,6 @@
             font-family: sans-serif;
         }
 
-        /* 컨트롤 영역 */
         .controls {
             margin: 20px 0;
             display: flex;
@@ -24,7 +23,6 @@
         }
         select { padding: 5px 10px; font-size: 16px; }
 
-        /* 스트리밍 영상 */
         #video-container {
             width: 80%;
             max-width: 800px;
@@ -35,28 +33,41 @@
             align-items: center;
             justify-content: center;
             position: relative;
-            margin-bottom: 30px;
+            margin-bottom: 20px; /* 간격 조정 */
         }
         #video-stream { width: 100%; height: 100%; object-fit: contain; display: block; }
         #error-msg { color: white; position: absolute; display: none; }
 
-        /* 뒤로가기 버튼 */
-        .back-btn {
+        /* [수정] 네비게이션 버튼 그룹 */
+        .nav-container {
+            display: flex;
+            gap: 15px;
             margin-bottom: 20px;
+        }
+
+        .nav-btn {
             padding: 10px 20px;
             cursor: pointer;
             border: 1px solid #000;
             background-color: #f0f0f0;
             text-decoration: none;
             color: black;
+            font-size: 14px;
+            border-radius: 4px;
         }
-        .back-btn:hover { background-color: #ddd; }
+        .nav-btn:hover { background-color: #ddd; }
+        /* 게시판 이동 버튼 강조 */
+        .btn-board {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+        .btn-board:hover { background-color: #0056b3; }
 
-        /* --- [추가] 로그 테이블 스타일 --- */
         .log-section {
             width: 80%;
             max-width: 800px;
-            margin-top: 20px;
+            margin-top: 10px;
         }
         table {
             width: 100%;
@@ -69,10 +80,8 @@
             padding: 8px;
             text-align: center;
         }
-        th {
-            background-color: #f2f2f2;
-            font-weight: bold;
-        }
+        th { background-color: #f2f2f2; font-weight: bold; }
+        
         .check-btn {
             padding: 5px 10px;
             background-color: #007bff;
@@ -84,26 +93,28 @@
         .check-btn:hover { background-color: #0056b3; }
         .check-btn:disabled { background-color: #ccc; cursor: not-allowed; }
 
-        /* --- [추가] 모달(팝업) 스타일 --- */
+        /* 모달 스타일 생략 (기존과 동일) */
         .modal {
-            display: none; /* 기본적으로 숨김 */
+            display: none;
             position: fixed;
             z-index: 1000;
             left: 0;
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0,0,0,0.7); /* 반투명 검은 배경 */
+            background-color: rgba(0,0,0,0.7);
         }
         .modal-content {
             background-color: #fefefe;
-            margin: 10% auto;
+            margin: 5% auto;
             padding: 20px;
             border: 1px solid #888;
             width: 60%;
             max-width: 700px;
             text-align: center;
             position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
         }
         .close {
             color: #aaa;
@@ -116,7 +127,54 @@
         video {
             width: 100%;
             margin-top: 15px;
+            margin-bottom: 15px;
         }
+
+        #share-container {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #ddd;
+        }
+        .share-btn {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+            width: 100%;
+        }
+        .share-btn:hover { background-color: #218838; }
+
+        .share-form {
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+            text-align: left;
+        }
+        .share-form input, .share-form textarea {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .share-form textarea { resize: vertical; height: 80px; }
+        .form-row { display: flex; gap: 10px; }
+        .form-row input { flex: 1; }
+        
+        .upload-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        .upload-btn:hover { background-color: #0069d9; }
+
     </style>
 </head>
 <body>
@@ -136,11 +194,14 @@
         <div id="error-msg">카메라를 찾을 수 없습니다.</div>
     </div>
 
-    <a href="/" class="back-btn">메인으로 돌아가기</a>
+    <!-- [수정] 네비게이션 버튼 그룹 -->
+    <div class="nav-container">
+        <a href="/" class="nav-btn">메인으로 돌아가기</a>
+        <a href="/board" class="nav-btn btn-board">게시판으로 이동</a>
+    </div>
 
-    <!-- [추가] 탐지 로그 테이블 섹션 -->
     <div class="log-section">
-        <h3>🚨 최근 탐지 로그 (실시간 아님, 새로고침 필요)</h3>
+        <h3>🚨 최근 탐지 로그 (자동 갱신 중...)</h3>
         <table>
             <thead>
                 <tr>
@@ -152,25 +213,37 @@
                 </tr>
             </thead>
             <tbody id="log-body">
-                <!-- 자바스크립트로 데이터가 여기에 들어감 -->
             </tbody>
         </table>
     </div>
 
-    <!-- [추가] 비디오 재생 모달창 -->
+    <!-- 비디오 재생 모달창 -->
     <div id="videoModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
             <h3 id="modal-title">녹화 영상 재생</h3>
+            
             <video id="modal-player" controls>
                 <source src="" type="video/mp4">
                 브라우저가 비디오 태그를 지원하지 않습니다.
             </video>
+
+            <div id="share-container">
+                <button id="btn-show-share" class="share-btn">게시글로 공유</button>
+
+                <div id="share-form" class="share-form">
+                    <div class="form-row">
+                        <input type="text" id="share-nickname" placeholder="닉네임" required>
+                        <input type="password" id="share-password" placeholder="비밀번호" required>
+                    </div>
+                    <textarea id="share-content" placeholder="내용을 입력하세요..." required></textarea>
+                    <button id="btn-submit-share" class="upload-btn">공유 (업로드)</button>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        // --- 1. 기존 스트리밍 로직 ---
         const camSelect = document.getElementById('cam-select');
         const btnRefresh = document.getElementById('btn-refresh');
         const videoStream = document.getElementById('video-stream');
@@ -190,24 +263,26 @@
             errorMsg.innerText = `Camera ${camSelect.value} 연결 실패`;
         });
 
-        // --- 2. [추가] 로그 테이블 & 모달 로직 ---
         const logBody = document.getElementById('log-body');
         const modal = document.getElementById('videoModal');
         const modalPlayer = document.getElementById('modal-player');
         const closeModal = document.querySelector('.close');
+        
+        const btnShowShare = document.getElementById('btn-show-share');
+        const shareForm = document.getElementById('share-form');
+        const btnSubmitShare = document.getElementById('btn-submit-share');
+        
+        let currentVideoFilename = "";
 
-        // (1) 로그 데이터 불러오기 함수
         async function fetchLogs() {
             try {
-                const response = await fetch('/api/logs'); // 서버 API 호출
+                const response = await fetch('/api/logs');
                 const data = await response.json();
                 
-                logBody.innerHTML = ''; // 기존 내용 초기화
+                logBody.innerHTML = '';
 
                 data.forEach(row => {
                     const tr = document.createElement('tr');
-                    
-                    // 비디오 파일이 없거나 녹화 중(종료시간 없음)이면 버튼 비활성화
                     const isVideoAvailable = row.video_filename && row.end_time;
                     
                     tr.innerHTML = `
@@ -232,23 +307,69 @@
             }
         }
 
-        // (2) 모달 열기 함수 (전역 호출을 위해 window에 등록)
         window.openModal = function(filename) {
             if (!filename) return;
-            // 서버에 마운트된 /videos 경로 사용
+            currentVideoFilename = filename; 
+
             modalPlayer.src = `/videos/${filename}`;
             modal.style.display = "block";
-            modalPlayer.play(); // 자동 재생
+            modalPlayer.play();
+
+            btnShowShare.style.display = "block";
+            shareForm.style.display = "none";
+            document.getElementById('share-nickname').value = "";
+            document.getElementById('share-password').value = "";
+            document.getElementById('share-content').value = "";
         };
 
-        // (3) 모달 닫기 로직
+        btnShowShare.addEventListener('click', () => {
+            btnShowShare.style.display = "none"; 
+            shareForm.style.display = "flex";    
+        });
+
+        btnSubmitShare.addEventListener('click', async () => {
+            const nickname = document.getElementById('share-nickname').value;
+            const password = document.getElementById('share-password').value;
+            const content = document.getElementById('share-content').value;
+
+            if (!nickname || !password || !content) {
+                alert("모든 필드를 입력해주세요.");
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/share', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        nickname: nickname,
+                        password: password,
+                        content: content,
+                        video_filename: currentVideoFilename
+                    })
+                });
+
+                if (response.ok) {
+                    alert("게시글이 성공적으로 공유되었습니다!");
+                    modal.style.display = "none";
+                    modalPlayer.pause();
+                } else {
+                    alert("업로드 실패: 서버 오류");
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                alert("통신 오류 발생");
+            }
+        });
+
         closeModal.onclick = function() {
             modal.style.display = "none";
-            modalPlayer.pause(); // 닫으면 재생 중지
-            modalPlayer.src = ""; // 소스 초기화
+            modalPlayer.pause();
+            modalPlayer.src = "";
         }
 
-        // 모달 바깥 영역 클릭 시 닫기
         window.onclick = function(event) {
             if (event.target == modal) {
                 modal.style.display = "none";
@@ -257,9 +378,7 @@
             }
         }
 
-        // 페이지 로드 시 로그 가져오기 실행
         fetchLogs();
-        // [추가] 1초(1000ms)마다 로그 리스트 자동 갱신 함수 실행
         setInterval(fetchLogs, 1000);
     </script>
 </body>

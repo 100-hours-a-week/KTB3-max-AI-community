@@ -1,9 +1,10 @@
 # server.py
 import cv2
 import pandas as pd
-from fastapi import FastAPI, status
+from fastapi import FastAPI, status, HTTPException
 from fastapi.responses import StreamingResponse, FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel
 import uvicorn
 
 import os
@@ -14,10 +15,14 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)) + "/..")
 
 from backend.make_db import mouse_log #`mouse_log.py` 모듈 import
 from backend.video import generate_frames #`streaming.py` 모듈에서 영상 스트리밍 함수 import
+from backend.make_db import content_db #`content_db.py` 모듈 import
 
 
+    
 #-------------------------------------------------------------------------------------
 app = FastAPI() #FastAPI 서버 인스턴스 생성, uvicorn으로 실행
+
+
 
 # 1. 정적 파일 경로 설정 (CSS, JS 등을 위해 필요할 수 있음, 현재는 구조상 크게 필요 없으나 유지)
 app.mount("/static", StaticFiles(directory="frontend"), name="static")
@@ -39,6 +44,11 @@ async def read_root():
 async def stream_page():
     # 파일 경로가 변경되었으므로 수정
     return FileResponse("frontend/pages/streaming.html")
+
+# [추가] 게시판 페이지 라우터
+@app.get("/board")
+async def board_page():
+    return FileResponse("frontend/pages/board.html")
 
 
 @app.get("/video_feed") #영상 스트리밍 엔드포인트
@@ -77,6 +87,49 @@ async def get_logs():
         else:
             row['video_filename'] = None
     return JSONResponse(content=data)
+
+# [추가] 게시글 데이터 수신을 위한 데이터 모델 정의
+class PostModel(BaseModel):
+    nickname: str
+    password: str
+    content: str
+    video_filename: str
+
+# [추가] 게시글 삭제 요청용 데이터 모델
+class DeleteModel(BaseModel):
+    password: str
+
+
+# [추가] 게시글 저장 API Endpoint
+@app.post("/api/share")
+async def share_post(post: PostModel):
+    try:
+        content_db.insert_post(
+            nickname=post.nickname,
+            password=post.password,
+            content=post.content,
+            video_filename=post.video_filename
+        )
+        return {"message": "success"}
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"message": str(e)})
+
+# [추가] 게시글 목록 조회 API
+@app.get("/api/posts")
+async def get_posts():
+    posts = content_db.get_all_posts()
+    return JSONResponse(content=posts)
+
+# [추가] 게시글 삭제 API
+@app.delete("/api/posts/{post_id}")
+async def delete_post(post_id: int, body: DeleteModel):
+    success = content_db.delete_post(post_id, body.password)
+    if success:
+        return {"message": "deleted"}
+    else:
+        # 비밀번호 불일치 또는 게시글 없음 -> 401 Unauthorized 또는 400 Bad Request
+        raise HTTPException(status_code=401, detail="비밀번호가 일치하지 않습니다.")
+    
 
 if __name__ == "__main__":
     print("서버 시작: http://localhost:8000")
