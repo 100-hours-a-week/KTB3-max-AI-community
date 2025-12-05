@@ -2,8 +2,8 @@
 import cv2
 from fastapi import FastAPI, status
 from fastapi.responses import StreamingResponse, JSONResponse
-from .data_base import database as db #`database.py` 모듈 import
-from .video_streaming.Streaming import generate_frames #`streaming.py` 모듈에서 영상 스트리밍 함수 import
+from backend.make_db import mouse_log #`mouse_log.py` 모듈 import
+from backend.video import generate_frames #`streaming.py` 모듈에서 영상 스트리밍 함수 import
 
 app = FastAPI() #FastAPI 서버 인스턴스 생성, uvicorn으로 실행
 
@@ -33,6 +33,6 @@ def get_stats():
     """
     프론트엔드에서 최근 로그를 조회하기 위한 API
     """
-    df = db.get_recent_events(5) #최근 5개 이벤트 조회
+    df = mouse_log.get_recent_events(5) #최근 5개 이벤트 조회
     # DataFrame을 dict(JSON) 형태로 변환하여 반환
     return df.to_dict(orient='records')

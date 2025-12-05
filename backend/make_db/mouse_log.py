@@ -1,8 +1,12 @@
 import sqlite3
 import pandas as pd
+import os
 
 # DB파일 저장 경로
-DB_PATH = "./mouse_log.db" #현재 작업 폴더
+DB_DIR = "./DB" #루트폴더(community)
+os.makedirs(DB_DIR, exist_ok=True)  # 폴더만 생성
+
+DB_PATH = os.path.join(DB_DIR, "mouse_log.db")  # 파일 경로
 
 def init_db():
     """
@@ -26,7 +30,7 @@ def init_db():
     #DB연결 해제
     conn.commit()
     conn.close()
-    print(f"{DB_PATH}에 DB생성 완료")
+    print(f"{DB_PATH}에 DB생성 및 로드 완료")
 
 #마우스 처음 탐지
 def insert_event(start_time) -> int: #현재 시간을 입력받음

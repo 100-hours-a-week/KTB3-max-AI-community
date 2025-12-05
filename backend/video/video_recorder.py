@@ -2,12 +2,12 @@
 import cv2
 import os
 import time
-from ..data_base import database as db #`database.py` 모듈 import
 from datetime import datetime #로컬 서버 시간 측정
+from backend.make_db import mouse_log #`mouse_log.py` 모듈 import
 
 
 # 영상 저장 폴더 생성
-VIDEO_DIR = './recorded_videos' #현재 backend 작업공간에 생성
+VIDEO_DIR = './DB/recorded_videos' #현재 backend 작업공간에 생성
 os.makedirs(VIDEO_DIR, exist_ok=True)
 
 #영상 저장 클래스-------------------------------------------------------------------
@@ -80,7 +80,7 @@ class VideoRecorder:
                 self.is_recording = True #녹화 상태로 전환
                 self.start_time = datetime.now() #최초로 현재 시간 기록, 다음 탐지된 프레임에선 해당 로직을 거치지 않는다
                 # DB에 이벤트 시작시간 기록하고 이벤트 ID를 반환받는다 
-                self.event_id = db.insert_event(self.start_time) #`database.py`의 insert_event 함수 호출
+                self.event_id = mouse_log.insert_event(self.start_time) #`database.py`의 insert_event 함수 호출
                 # 비디오 파일 생성 준비
                 self.filename = f"mouse_{self.start_time.strftime('%Y%m%d_%H%M%S')}.mp4" # 파일 이름
                 filepath = os.path.join(VIDEO_DIR, self.filename) # 비디오 저장 파일 경로 지정                
@@ -122,7 +122,7 @@ class VideoRecorder:
         
         # DB 업데이트 (종료 시간, 경로, 파일 위치)
         if self.event_id:
-            db.update_event(self.event_id, end_time, path_str, video_path_full)
+            mouse_log.update_event(self.event_id, end_time, path_str, video_path_full)
             print(f"[End] Event {self.event_id} saved. Path: {path_str}")
         
         # 다음 녹화를 위해 변수 초기화
