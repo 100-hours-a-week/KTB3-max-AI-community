@@ -6,7 +6,7 @@
     <title>MDF - Board</title>
     <style>
         body {
-            background-color: #fafafa; /* 인스타 느낌의 밝은 회색 배경 */
+            background-color: #fafafa;
             margin: 0;
             font-family: sans-serif;
             display: flex;
@@ -14,39 +14,48 @@
             align-items: center;
         }
 
-        /* 상단 헤더 */
         header {
             width: 100%;
             background-color: white;
             border-bottom: 1px solid #dbdbdb;
-            padding: 15px 0;
+            padding: 15px 20px;
+            box-sizing: border-box;
             position: sticky;
             top: 0;
             z-index: 100;
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
-            gap: 20px;
         }
 
         header h2 { margin: 0; font-size: 20px; }
-        
-        .header-link {
-            text-decoration: none;
-            color: #0095f6;
-            font-weight: bold;
-            font-size: 14px;
-        }
 
-        /* 피드 컨테이너 */
+        .header-btns { display: flex; gap: 10px; }
+        .nav-btn {
+            padding: 8px 15px;
+            font-size: 14px;
+            cursor: pointer;
+            border: 1px solid #dbdbdb;
+            background-color: white;
+            border-radius: 4px;
+            font-weight: bold;
+            color: #333;
+        }
+        .nav-btn:hover { background-color: #f0f0f0; }
+        .btn-primary {
+            background-color: #0095f6;
+            color: white;
+            border: 1px solid #0095f6;
+        }
+        .btn-primary:hover { background-color: #0081d6; }
+
         #feed-container {
             width: 100%;
-            max-width: 470px; /* 인스타그램 피드 너비와 유사 */
+            max-width: 470px;
             margin-top: 20px;
             padding-bottom: 50px;
         }
 
-        /* 게시글 카드 스타일 */
         .post-card {
             background-color: white;
             border: 1px solid #dbdbdb;
@@ -55,7 +64,6 @@
             position: relative;
         }
 
-        /* 게시글 헤더 (닉네임, 시간, 삭제버튼) */
         .post-header {
             padding: 14px;
             display: flex;
@@ -64,10 +72,7 @@
             border-bottom: 1px solid #efefef;
         }
         
-        .user-info {
-            display: flex;
-            flex-direction: column;
-        }
+        .user-info { display: flex; flex-direction: column; }
         .nickname { font-weight: bold; font-size: 14px; color: #262626; }
         .timestamp { font-size: 11px; color: #8e8e8e; margin-top: 2px; }
 
@@ -80,11 +85,9 @@
             font-weight: bold;
         }
 
-        /* 게시글 비디오 */
         .post-video-container {
             width: 100%;
             background-color: black;
-            /* 영상 비율 유지 혹은 꽉 채우기 */
             display: flex; 
             justify-content: center;
             align-items: center;
@@ -95,15 +98,90 @@
             display: block;
         }
 
-        /* 게시글 내용 */
         .post-content {
             padding: 14px;
             font-size: 14px;
             color: #262626;
             line-height: 1.5;
+            border-bottom: 1px solid #efefef;
         }
 
-        /* 삭제 비밀번호 확인 모달 */
+        /* 댓글 섹션 스타일 */
+        .comments-section {
+            padding: 10px 14px;
+            background-color: #fcfcfc;
+        }
+        .comment-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+        .comment-wrapper {
+            display: flex;
+            gap: 5px;
+            color: #333;
+            word-break: break-all;
+        }
+        .comment-nickname {
+            font-weight: bold;
+            color: #262626;
+            white-space: nowrap; /* 닉네임 줄바꿈 방지 */
+        }
+        .comment-del-btn {
+            color: #aaa;
+            font-size: 12px;
+            cursor: pointer;
+            margin-left: 10px;
+            border: none;
+            background: none;
+            white-space: nowrap;
+        }
+        .comment-del-btn:hover { color: #ed4956; }
+
+        /* [수정] 댓글 입력 폼: 닉네임, 내용, 비번 순서 */
+        .comment-form {
+            display: flex;
+            gap: 5px;
+            margin-top: 10px;
+            border-top: 1px solid #eee;
+            padding-top: 10px;
+        }
+        .input-nick {
+            flex: 1; /* 작은 공간 */
+            max-width: 80px;
+            border: 1px solid #dbdbdb;
+            border-radius: 4px;
+            padding: 8px;
+            font-size: 13px;
+        }
+        .input-comment {
+            flex: 3; /* 넓은 공간 */
+            border: 1px solid #dbdbdb;
+            border-radius: 4px;
+            padding: 8px;
+            font-size: 13px;
+        }
+        .input-pw {
+            flex: 1; /* 작은 공간 */
+            max-width: 70px;
+            border: 1px solid #dbdbdb;
+            border-radius: 4px;
+            padding: 8px;
+            font-size: 13px;
+        }
+        .btn-submit-comment {
+            background-color: white;
+            color: #0095f6;
+            border: none;
+            font-weight: bold;
+            font-size: 13px;
+            cursor: pointer;
+            padding: 0 5px;
+        }
+        .btn-submit-comment:hover { color: #0074cc; }
+
         .modal {
             display: none;
             position: fixed;
@@ -148,23 +226,19 @@
     <header>
         <h2>MDF Board</h2>
         <div class="header-btns">
-            <!-- 메인으로 이동 -->
             <button class="nav-btn" onclick="location.href='/'">메인으로</button>
-            <!-- 스트리밍으로 이동 (강조 스타일) -->
             <button class="nav-btn btn-primary" onclick="location.href='/stream'">영상 스트리밍</button>
         </div>
     </header>
 
     <div id="feed-container">
-        <!-- 게시글들이 여기에 자바스크립트로 추가됩니다 -->
         <div style="text-align: center; margin-top: 50px; color: #888;">게시글을 불러오는 중...</div>
     </div>
 
-    <!-- 삭제 확인 모달 -->
     <div id="deleteModal" class="modal">
         <div class="modal-content">
-            <h3>게시글 삭제</h3>
-            <p style="font-size: 12px; color: #666;">작성 시 입력한 비밀번호를 입력하세요.</p>
+            <h3 id="delete-title">삭제</h3>
+            <p style="font-size: 12px; color: #666;">비밀번호를 입력하세요.</p>
             <input type="password" id="delete-password" placeholder="비밀번호">
             <div class="modal-btns">
                 <button class="modal-btn btn-cancel" id="btn-cancel-delete">취소</button>
@@ -176,19 +250,20 @@
     <script>
         const feedContainer = document.getElementById('feed-container');
         const deleteModal = document.getElementById('deleteModal');
+        const deleteTitle = document.getElementById('delete-title');
         const deletePasswordInput = document.getElementById('delete-password');
         const btnCancelDelete = document.getElementById('btn-cancel-delete');
         const btnConfirmDelete = document.getElementById('btn-confirm-delete');
 
-        let targetPostId = null; // 삭제할 게시글 ID 저장
+        let targetId = null; 
+        let targetType = null; 
 
-        // 1. 게시글 목록 불러오기
         async function loadPosts() {
             try {
                 const response = await fetch('/api/posts');
                 const posts = await response.json();
 
-                feedContainer.innerHTML = ''; // 초기화
+                feedContainer.innerHTML = ''; 
 
                 if (posts.length === 0) {
                     feedContainer.innerHTML = '<div style="text-align: center; margin-top: 50px;">등록된 게시글이 없습니다.</div>';
@@ -198,9 +273,8 @@
                 posts.forEach(post => {
                     const postElement = createPostElement(post);
                     feedContainer.appendChild(postElement);
-                    // 생성된 비디오 요소를 Observer에 등록 (자동 재생용)
                     const videoEl = postElement.querySelector('video');
-                    observer.observe(postElement); // 게시글 카드 자체를 관찰
+                    observer.observe(postElement); 
                 });
 
             } catch (error) {
@@ -209,19 +283,36 @@
             }
         }
 
-        // 2. 게시글 HTML 생성 함수
         function createPostElement(post) {
             const div = document.createElement('div');
             div.className = 'post-card';
             
-            // 삭제 버튼은 본인 비밀번호를 아는 사람만 누를 수 있으므로 일단 모두에게 노출 (누르면 비번 물어봄)
+            // 댓글 리스트 HTML 생성 (닉네임 포함)
+            let commentsHtml = '';
+            if (post.comments && post.comments.length > 0) {
+                post.comments.forEach(comment => {
+                    commentsHtml += `
+                        <div class="comment-item">
+                            <div class="comment-wrapper">
+                                <span class="comment-nickname">${comment.nickname}</span>
+                                <span class="comment-text">${comment.content}</span>
+                            </div>
+                            <button class="comment-del-btn" onclick="openDeleteModal(${comment.id}, 'comment')">x</button>
+                        </div>
+                    `;
+                });
+            } else {
+                commentsHtml = '<div style="font-size:12px; color:#aaa; margin-bottom:5px;">첫 댓글을 남겨보세요.</div>';
+            }
+
+            // [수정] 댓글 입력 폼 HTML에 닉네임 필드 추가
             div.innerHTML = `
                 <div class="post-header">
                     <div class="user-info">
                         <span class="nickname">${post.nickname}</span>
                         <span class="timestamp">${post.created_at}</span>
                     </div>
-                    <button class="delete-btn" onclick="openDeleteModal(${post.id})">삭제</button>
+                    <button class="delete-btn" onclick="openDeleteModal(${post.id}, 'post')">게시글 삭제</button>
                 </div>
                 <div class="post-video-container">
                     <video loop muted playsinline>
@@ -232,48 +323,92 @@
                     <span style="font-weight: bold; margin-right: 5px;">${post.nickname}</span>
                     ${post.content}
                 </div>
+                
+                <div class="comments-section">
+                    <div id="comments-list-${post.id}">
+                        ${commentsHtml}
+                    </div>
+                    <div class="comment-form">
+                        <input type="text" class="input-nick" id="comment-nick-${post.id}" placeholder="닉네임">
+                        <input type="text" class="input-comment" id="comment-text-${post.id}" placeholder="댓글 달기...">
+                        <input type="password" class="input-pw" id="comment-pw-${post.id}" placeholder="비번">
+                        <button class="btn-submit-comment" onclick="submitComment(${post.id})">게시</button>
+                    </div>
+                </div>
             `;
             return div;
         }
 
-        // 3. 스크롤 자동 재생 (Intersection Observer)
-        // 화면 중앙에 게시글이 오면 재생, 벗어나면 정지
-        const observerOptions = {
-            root: null,
-            rootMargin: '0px',
-            threshold: 0.6 // 게시글의 60% 이상이 화면에 보일 때 트리거
-        };
+        async function submitComment(postId) {
+            const nickInput = document.getElementById(`comment-nick-${postId}`);
+            const contentInput = document.getElementById(`comment-text-${postId}`);
+            const pwInput = document.getElementById(`comment-pw-${postId}`);
+            
+            const nickname = nickInput.value;
+            const content = contentInput.value;
+            const password = pwInput.value;
 
+            if (!nickname || !content || !password) {
+                alert("닉네임, 내용, 비밀번호를 모두 입력하세요.");
+                return;
+            }
+
+            try {
+                // [수정] 닉네임 데이터 포함하여 전송
+                const response = await fetch('/api/comments', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        post_id: postId, 
+                        nickname: nickname,
+                        content: content, 
+                        password: password 
+                    })
+                });
+
+                if (response.ok) {
+                    loadPosts(); 
+                } else {
+                    alert("댓글 작성 실패");
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        const observerOptions = { root: null, rootMargin: '0px', threshold: 0.6 };
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 const video = entry.target.querySelector('video');
                 if (!video) return;
-
                 if (entry.isIntersecting) {
-                    video.play().catch(e => console.log("자동 재생 차단됨 (사용자 인터랙션 필요 가능성):", e));
+                    video.play().catch(e => console.log("자동 재생 차단됨:", e));
                 } else {
                     video.pause();
                 }
             });
         }, observerOptions);
 
+        window.openDeleteModal = function(id, type) {
+            targetId = id;
+            targetType = type;
+            
+            if (type === 'post') deleteTitle.innerText = "게시글 삭제";
+            else deleteTitle.innerText = "댓글 삭제";
 
-        // 4. 삭제 모달 관련 로직
-        window.openDeleteModal = function(postId) {
-            targetPostId = postId;
-            deletePasswordInput.value = ''; // 입력창 초기화
+            deletePasswordInput.value = ''; 
             deleteModal.style.display = 'block';
             deletePasswordInput.focus();
         };
 
         function closeDeleteModal() {
             deleteModal.style.display = 'none';
-            targetPostId = null;
+            targetId = null;
+            targetType = null;
         }
 
         btnCancelDelete.addEventListener('click', closeDeleteModal);
 
-        // 삭제 확인 버튼 클릭
         btnConfirmDelete.addEventListener('click', async () => {
             const password = deletePasswordInput.value;
             if (!password) {
@@ -281,20 +416,22 @@
                 return;
             }
 
+            let url = '';
+            if (targetType === 'post') url = `/api/posts/${targetId}`;
+            else url = `/api/comments/${targetId}`;
+
             try {
-                const response = await fetch(`/api/posts/${targetPostId}`, {
+                const response = await fetch(url, {
                     method: 'DELETE',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ password: password })
                 });
 
                 if (response.ok) {
-                    alert("삭제되었습니다.");
                     closeDeleteModal();
-                    loadPosts(); // 목록 새로고침
+                    loadPosts(); 
                 } else {
-                    // 401 Unauthorized 등
-                    alert("비밀번호가 일치하지 않거나 삭제에 실패했습니다.");
+                    alert("비밀번호가 일치하지 않습니다.");
                 }
             } catch (error) {
                 console.error("삭제 요청 에러:", error);
@@ -302,16 +439,13 @@
             }
         });
 
-        // 모달 바깥 클릭 시 닫기
         window.onclick = function(event) {
             if (event.target == deleteModal) {
                 closeDeleteModal();
             }
         }
 
-        // 페이지 로드 시 실행
         loadPosts();
-
     </script>
 </body>
 </html>
