@@ -1,5 +1,5 @@
 # streaming.py
-# 영상 스트리밍 및 녹화 관리 모듈
+# 영상 스트리밍 함수
 
 import cv2
 from backend.yolo import ObjectDetector # 분리한 이미지 처리 모듈 import
@@ -7,7 +7,7 @@ from .video_recorder import VideoRecorder # VideoRecorder 클래스 import
 
 # 전역 Detector 객체 생성, 서버가 시작될 때 한번만 AI모델이 로드됨
 detector = ObjectDetector()
-# # 전역 레코더 인스턴스 생성
+# 전역 레코더 인스턴스 생성
 recorder = VideoRecorder()
 
 #영상 스트리밍 함수-------------------------------------------------------------------

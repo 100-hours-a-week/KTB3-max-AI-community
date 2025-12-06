@@ -5,7 +5,6 @@ from datetime import datetime
 # DB 파일 저장 경로 (기존 DB 폴더 사용)
 DB_DIR = "./DB"
 os.makedirs(DB_DIR, exist_ok=True)
-
 DB_PATH = os.path.join(DB_DIR, "content.db") # 게시글용 별도 DB 파일
 
 def init_db():
@@ -34,7 +33,7 @@ def init_db():
 
 def insert_post(nickname, password, content, video_filename):
     """
-    게시글 저장 함수
+    `posts` DB에 게시글 저장 함수
     """
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()

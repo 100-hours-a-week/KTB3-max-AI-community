@@ -5,7 +5,6 @@ from datetime import datetime
 # DB 파일 저장 경로
 DB_DIR = "./DB"
 os.makedirs(DB_DIR, exist_ok=True)
-
 # 댓글용 별도 DB 파일
 DB_PATH = os.path.join(DB_DIR, "comment.db")
 

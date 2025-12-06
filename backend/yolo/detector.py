@@ -27,7 +27,7 @@ class ObjectDetector:
             return frame, {"detected": False, "center": None} # 모델 없으면 원본 그대로 반환
 
         # 프레임 분석
-        results = self.model.predict(frame, conf=0.45, verbose=False) #신뢰도 35%, 분석 결과 터미널에 출력하지 않음
+        results = self.model.predict(frame, conf=0.45, verbose=False) #신뢰도 45%, 분석 결과 터미널에 출력하지 않음
         r = results[0] #첫번째 결과만 가져오기
         
         mouse_detected = False #쥐를 탐지했는지 플래그

@@ -3,7 +3,7 @@
 
 # 목표
 1. 영상 스트리밍 중 YOLO모델을 통해 `mouse` 실시간 탐지
-2. 탐지된 영상을 게시판에 업로드
+2. 탐지된 영상 중 하나를 게시판에 업로드
 3. 게시글에 댓글 작성
 
 ## 파일 구조
@@ -50,11 +50,12 @@
 └── requirements.txt # 타 로컬환경 구동용 필수 라이브러리 기입
 ```
 
+## 시험 구동 영상
+[![KTB3_max.ji_week12_assignment_community](https://i9.ytimg.com/vi/0rHqjLoMuDo/mqdefault.jpg?sqp=COCMz8kG-oaymwEmCMACELQB8quKqQMa8AEB-AGECYAC0AWKAgwIABABGGEgYShhMA8=&rs=AOn4CLDPz1BbhAa_i6HE-S4YYL4G_aK56Q)](https://youtu.be/0rHqjLoMuDo)  
+![youtube](https://img.shields.io/badge/youtube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)
+[KTB3_max.ji_week12_assignment_community](https://youtu.be/0rHqjLoMuDo)
+
 ## 기능 구현
 
 
-## 시험 구동 장면 영상
-[![KTB3_max.ji_week12_assignment_community](https://i9.ytimg.com/vi_webp/0rHqjLoMuDo/mqdefault.webp?sqp=CPyayskG&rs=AOn4CLA2DorJmsxT4DyiYvwWVHb95uaqfQ)](https://youtu.be/0rHqjLoMuDo)  
-![youtube](https://img.shields.io/badge/youtube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)
-[KTB3_max.ji_week12_assignment_community](https://youtu.be/0rHqjLoMuDo)
 ## 회고

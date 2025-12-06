@@ -14,9 +14,9 @@ import sys
 sys.path.append(os.path.dirname(os.path.abspath(__file__)) + "/..")
 
 from backend.make_db import mouse_log #`mouse_log.py` 모듈 import
-from backend.video import generate_frames #`streaming.py` 모듈에서 영상 스트리밍 함수 import
 from backend.make_db import content_db #`content_db.py` 모듈 import
 from backend.make_db import comment_db #`comment_db.py` 모듈 import
+from backend.video import generate_frames #`streaming.py` 모듈에서 영상 스트리밍 함수 import
 
 
     

@@ -4,13 +4,12 @@ import os
 
 # DB파일 저장 경로
 DB_DIR = "./DB" #루트폴더(community)
-os.makedirs(DB_DIR, exist_ok=True)  # 폴더만 생성
-
-DB_PATH = os.path.join(DB_DIR, "mouse_log.db")  # 파일 경로
+os.makedirs(DB_DIR, exist_ok=True)  #폴더 생성
+DB_PATH = os.path.join(DB_DIR, "mouse_log.db")  #파일 경로
 
 def init_db():
     """
-    'detections' DB테이블 생성
+    'mouse_log' DB테이블 생성
     """
     #DB 연결
     conn = sqlite3.connect(DB_PATH)
@@ -18,7 +17,7 @@ def init_db():
 
     #테이블 생성 SQL문
     cursor.execute('''
-        CREATE TABLE IF NOT EXISTS detections (
+        CREATE TABLE IF NOT EXISTS mouse_log (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             start_time TEXT,
             end_time TEXT,
@@ -45,7 +44,7 @@ def insert_event(start_time) -> int: #현재 시간을 입력받음
     start_str = start_time.strftime("%Y-%m-%d %H:%M:%S")
     #이벤트의 시작 시점에선 `end_time`, `path_log`, `video_path`가 비어있음
     cursor.execute('''
-        INSERT INTO detections (start_time, end_time, path_log, video_path)
+        INSERT INTO mouse_log (start_time, end_time, path_log, video_path)
         VALUES (?, ?, ?, ?)
     ''', (start_str, None, "", ""))
     event_id = cursor.lastrowid #생성된 행의 ID를 가져온다
@@ -63,7 +62,7 @@ def update_event(event_id: int, end_time: str, path_log: str, video_path: str): 
 
     end_str = end_time.strftime("%Y-%m-%d %H:%M:%S")
     cursor.execute('''
-        UPDATE detections
+        UPDATE mouse_log
         SET end_time = ?, path_log = ?, video_path = ?
         WHERE id = ?
     ''', (end_str, path_log, video_path, event_id))
@@ -77,7 +76,7 @@ def get_recent_events(limit: int = 5) -> pd.DataFrame:
     """
     conn = sqlite3.connect(DB_PATH)
     query = f'''
-        SELECT * FROM detections
+        SELECT * FROM mouse_log
         ORDER BY id DESC
         LIMIT {limit}
     '''

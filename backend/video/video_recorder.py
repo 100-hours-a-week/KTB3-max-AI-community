@@ -97,7 +97,7 @@ class VideoRecorder:
 
                 print(f"마우스 탐지 이벤트 {self.event_id} 시작, {self.filename} 기록중")
         
-        # 3. 쥐가 탐지되었지만 녹화중일 경우
+        # 3. 해당 프레임에 `mouse`가 탐지되지 않았지만 녹화중일 경우
         # 아직 쿨다운 2초가 지나지 않았을때이다
         elif self.is_recording:
             if current_time - self.last_detection_time > self.cooldown: # 현재 시간과 비교하여 마지막 탐지시간과의 차이가 쿨다운 2초를 넘긴 경우
