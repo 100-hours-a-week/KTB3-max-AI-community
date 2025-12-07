@@ -20,7 +20,7 @@ FastAPI 기반 백엔드 서버 구동
 uvicorn backend.server:app --reload --host 127.0.0.1 --port 8000 # 윈도우
 ```
 
-## IV-1. FastAPI 스트리밍 라우터
+### IV-1. FastAPI 스트리밍 라우터
 1. `@app.get("/")` : 메인 페이지, `./frontend/index.html` 파일 실행
 2. `@app.get("/stream")` : 스트리밍 페이지, `./frontend/pages/streaming.html` 파일 실행
 3. `@app.get("/board")` : 게시판 페이지, `./frontend/pages/board.html` 파일 실행  
@@ -29,7 +29,7 @@ uvicorn backend.server:app --reload --host 127.0.0.1 --port 8000 # 윈도우
 스트리밍 페이지 하단 매 1초마다 자동 갱신 및 영상 존재 시 공유 버튼 활성화
 5. `@app.post("/api/share")` : 스트리밍 페이지에서 선택 동영상 게시판 업로드 API
 
-## IV-2. FastAPI 게시판 라우터
+### IV-2. FastAPI 게시판 라우터
 1. `@app.get("/api/posts")` : 게시판 페이지에서 각 게시글과 이에 해당하는 댓글들 출력 API
 2. `@app.delete("/api/posts/{post_id}")` : 게시글 삭제 API, 비밀번호 일치 시 삭제, 불일치 시 401 에러
 3. `@app.post("/api/comments")` : 게시글 댓글 작성 API

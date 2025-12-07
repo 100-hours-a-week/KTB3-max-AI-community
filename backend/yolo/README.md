@@ -18,7 +18,7 @@ from backend.yolo import ObjectDetector
 (저장 경로 : `./backend/yolo/yolo11n.pt`)
 
 ### I-2. `ObjectDetector.process_frame()`
-- 임력 : 이미지 프레임
+- 입력 : 이미지 프레임
 - `YOLO11n` 모델로 이미지 프레임을 분석 (신뢰도 45%)
 - 객체 탐지 결과가 반영된 프레임을 반환
 - `mouse`가 탐지된 경우  
