@@ -51,7 +51,7 @@
 ```
 
 ## 시험 구동 영상
-[![KTB3_max.ji_week12_assignment_community](https://i9.ytimg.com/vi/0rHqjLoMuDo/mqdefault.jpg?sqp=COCMz8kG-oaymwEmCMACELQB8quKqQMa8AEB-AGECYAC0AWKAgwIABABGGEgYShhMA8=&rs=AOn4CLDPz1BbhAa_i6HE-S4YYL4G_aK56Q)](https://youtu.be/0rHqjLoMuDo)  
+[![KTB3_max.ji_week12_assignment_community](https://velog.velcdn.com/images/swoo64/post/d90586c6-68d9-441d-b470-75297de0ca11/image.png)](https://youtu.be/0rHqjLoMuDo)  
 ![youtube](https://img.shields.io/badge/youtube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)
 [KTB3_max.ji_week12_assignment_community](https://youtu.be/0rHqjLoMuDo)
 

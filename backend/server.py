@@ -9,8 +9,7 @@ import uvicorn
 
 import os
 import sys
-# [중요] 프로젝트 루트 경로를 파이썬 경로에 추가
-# 이 코드가 있어야 'backend' 패키지를 인식할 수 있습니다.
+# 프로젝트 루트 경로 추가 - 'backend' 패키지 인식
 sys.path.append(os.path.dirname(os.path.abspath(__file__)) + "/..")
 
 from backend.make_db import mouse_log #`mouse_log.py` 모듈 import
@@ -22,11 +21,6 @@ from backend.video import generate_frames #`streaming.py` 모듈에서 영상 �
     
 #-------------------------------------------------------------------------------------
 app = FastAPI() #FastAPI 서버 인스턴스 생성, uvicorn으로 실행
-
-
-
-# 1. 정적 파일 경로 설정 (CSS, JS 등을 위해 필요할 수 있음, 현재는 구조상 크게 필요 없으나 유지)
-app.mount("/static", StaticFiles(directory="frontend"), name="static")
 
 # 영상 저장 디렉토리 설정 및 생성
 VIDEO_DIR = "./DB/recorded_videos"
