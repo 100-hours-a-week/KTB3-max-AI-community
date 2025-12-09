@@ -1,6 +1,7 @@
 import sqlite3
 import pandas as pd
 import os
+from datetime import datetime
 
 # DB파일 저장 경로
 DB_DIR = "./DB" #루트폴더(community)
@@ -32,7 +33,7 @@ def init_db():
     print(f"{DB_PATH}에 DB생성 및 로드 완료")
 
 #마우스 처음 탐지
-def insert_event(start_time) -> int: #현재 시간을 입력받음
+def insert_event(start_time: datetime) -> int: #현재 시간을 입력받음
     """
     마우스를 처음 탐지했을 때 이벤트 생성
     DB에 부여된 'ID'를 반환
@@ -53,7 +54,7 @@ def insert_event(start_time) -> int: #현재 시간을 입력받음
     return event_id
 
 #마우스 탐지 종료
-def update_event(event_id: int, end_time: str, path_log: str, video_path: str): #이 시점에는 동영상까지 저장되어있음
+def update_event(event_id: int, end_time: datetime, path_log: str, video_path: str): #이 시점에는 동영상까지 저장되어있음
     """
     마우스 탐지가 종료되었을 때 이벤트 업데이트
     """
@@ -70,7 +71,7 @@ def update_event(event_id: int, end_time: str, path_log: str, video_path: str): 
     conn.commit()
     conn.close()
 
-def get_recent_events(limit: int = 5) -> pd.DataFrame:
+def get_recent_events(limit: int = 10) -> pd.DataFrame:
     """
     최근 탐지 이벤트들을 DataFrame 형식으로 반환
     """
@@ -84,8 +85,8 @@ def get_recent_events(limit: int = 5) -> pd.DataFrame:
     conn.close()
     return df
 
-#파일 실행 또는 import시 DB 생성 및 초기화 실행
+#파일 실행 또는 import시 DB 생성
 if __name__ == "__main__":
-    init_db() #DB 생성 및 초기화
+    init_db() #DB 생성
 else:
     init_db()

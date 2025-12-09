@@ -2,16 +2,18 @@
 import cv2
 import os
 import time
+import numpy as np
+from typing import List, Optional, Tuple, Dict, Union
 from datetime import datetime #로컬 서버 시간 측정
 from backend.make_db import mouse_log #`mouse_log.py` 모듈 import
 
 
 # 영상 저장 폴더 생성
-VIDEO_DIR = './DB/recorded_videos' #현재 backend 작업공간에 생성
+VIDEO_DIR = './DB/recorded_videos'
 os.makedirs(VIDEO_DIR, exist_ok=True)
 
 #영상 저장 클래스-------------------------------------------------------------------
-#포함된 함수는 각 프레임마다 동작한다
+#포함된 함수는 각 이미지 프레임마다 동작한다
 class VideoRecorder:
     def __init__(self):
         self.cooldown = 2.0 # 2초 쿨다운 (쥐가 사라져도 2초간 녹화 유지)
@@ -25,9 +27,9 @@ class VideoRecorder:
         self.out = None # 생성할 비디오 정보 저장
     
     # 마우스 이동경로 구역 계산 함수
-    def get_zone(self, x, y, width, height): #마우스 박스의 중앙좌표와 화면 크기
+    def get_zone(self, x: int, y: int, width: int, height: int) -> str: #마우스 박스의 중앙좌표와 화면 크기를 입력받음
         """
-        화면을 3x3 9분할하여 구역 번호(1~9)를 반환합니다.
+        화면을 3x3 9분할하여 구역 번호(1~9)를 반환
         [[1, 2, 3],
          [4, 5, 6],
          [7, 8, 9]]
@@ -52,18 +54,24 @@ class VideoRecorder:
         return real_zone
 
     # 프레임 처리 및 녹화 관리 함수
-    def process(self, frame, detection_info):
+    ## 각 이미지프레임마다 정보를 받음
+    def process(self, frame: np.ndarray, detection_info: Dict[str, Union[bool, Optional[Tuple[int, int]]]]) -> None:
         """
-        1. 마우스 탐지 이벤트 감지
-        2. 이동 경로 기록
-        3. 녹화 시작/종료 관리
+        마우스 탐지 이벤트 감지
+        이동 경로 기록
+        녹화 시작/종료 관리
+
+        1. `mouse` 최초 탐지 시 : 마지막 탐지시간 갱신, 녹화 시작 (각 프레임을 비디오에 기록)
+        2. `mouse` 탐지 중 : 마지막 탐지시간 갱신, 이동 경로 기록, 녹화 계속
+        3. `mouse` 미탐지 중 : 쿨다운 시간(2초) 경과 전까지 녹화 계속
+        4. 쿨다운 시간 경과 시 : 녹화 종료, DB 업데이트
         """
         current_time = time.time() #현재 시간
         detected = detection_info['detected'] #탐지 여부
         center = detection_info['center'] #마우스 박스 중앙 좌표
         height, width, _ = frame.shape #영상의 크기
 
-        # 1. 마우스 탐지 이벤트 발생
+        # 마우스 탐지 이벤트 발생
         if detected:
             self.last_detection_time = current_time #마지막 탐지 시간 갱신
 
@@ -75,7 +83,7 @@ class VideoRecorder:
                 self.path_history.append(zone) #이동 구역 갱신
                 self.last_zone = zone #마지막 구역 갱신
         
-            # 2. 녹화 시작 관리
+            # 1. `mouse` 최초 탐지 시 (녹화중이 아님)
             if not self.is_recording:
                 self.is_recording = True #녹화 상태로 전환
                 self.start_time = datetime.now() #최초로 현재 시간 기록, 다음 탐지된 프레임에선 해당 로직을 거치지 않는다
@@ -85,8 +93,7 @@ class VideoRecorder:
                 self.filename = f"mouse_{self.start_time.strftime('%Y%m%d_%H%M%S')}.mp4" # 파일 이름
                 filepath = os.path.join(VIDEO_DIR, self.filename) # 비디오 저장 파일 경로 지정      
 
-                # [수정됨] 웹 브라우저 호환성을 위해 코덱을 mp4v에서 avc1(H.264)로 변경
-                # Mac에서는 기본 지원, Windows 등에서는 openh264 dll 필요할 수 있음
+                # 웹 브라우저 호환성을 위해 코덱을 mp4v에서 avc1(H.264)로 변경
                 try:
                     fourcc = cv2.VideoWriter_fourcc(*'avc1')
                     self.out = cv2.VideoWriter(filepath, fourcc, 30.0, (width, height))
@@ -97,15 +104,13 @@ class VideoRecorder:
 
                 print(f"마우스 탐지 이벤트 {self.event_id} 시작, {self.filename} 기록중")
         
-        # 3. 해당 프레임에 `mouse`가 탐지되지 않았지만 녹화중일 경우
-        # 아직 쿨다운 2초가 지나지 않았을때이다
+        # 4. 쿨다운 시간 경과 시 
         elif self.is_recording:
             if current_time - self.last_detection_time > self.cooldown: # 현재 시간과 비교하여 마지막 탐지시간과의 차이가 쿨다운 2초를 넘긴 경우
                 # 녹화를 종료한다
                 self.stop_recording() #아래에 정의된 녹화 종료 함수를 호출한다
-            # 쿨다운 시간이 지나지 않았다면 녹화를 계속 진행한다
         
-        # 4.녹화중일경우
+        # 2. `mouse` 탐지 중 및 3. `mouse` 미탐지 중
         if self.is_recording and self.out is not None:
             # 현재 프레임을 비디오에 기록하여 저장한다
             self.out.write(frame)

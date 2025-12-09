@@ -1,6 +1,7 @@
 import sqlite3
 import os
 from datetime import datetime
+from typing import List, Dict, Any
 
 # DB 파일 저장 경로 (기존 DB 폴더 사용)
 DB_DIR = "./DB"
@@ -31,7 +32,7 @@ def init_db():
     conn.close()
     print(f"{DB_PATH}에 게시판 DB 생성 및 로드 완료")
 
-def insert_post(nickname, password, content, video_filename):
+def insert_post(nickname: str, password: str, content: str, video_filename: str):
     """
     `posts` DB에 게시글 저장 함수
     """
@@ -49,7 +50,7 @@ def insert_post(nickname, password, content, video_filename):
     conn.close()
     print(f"게시글 저장 완료: {nickname} - {video_filename}")
 
-def get_all_posts():
+def get_all_posts() -> List[Dict[str, Any]]:
     """
     모든 게시글을 최신순(id 내림차순)으로 조회
     """
@@ -65,7 +66,7 @@ def get_all_posts():
     # sqlite3.Row 객체를 dict로 변환하여 리스트 반환
     return [dict(row) for row in rows]
 
-def delete_post(post_id, password):
+def delete_post(post_id: int, password: str) -> bool:
     """
     비밀번호가 일치하면 게시글 삭제
     성공 시 True, 실패(비번 불일치 등) 시 False 반환

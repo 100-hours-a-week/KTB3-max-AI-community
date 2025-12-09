@@ -1,6 +1,7 @@
 import sqlite3
 import os
 from datetime import datetime
+from typing import List, Dict, Any
 
 # DB 파일 저장 경로
 DB_DIR = "./DB"
@@ -32,7 +33,7 @@ def init_db():
     conn.close()
     print(f"{DB_PATH}에 댓글 DB 로드 완료")
 
-def insert_comment(post_id, nickname, content, password):
+def insert_comment(post_id: int, nickname: str, content: str, password: str):
     """
     댓글 저장 (nickname 인자 추가)
     """
@@ -48,7 +49,7 @@ def insert_comment(post_id, nickname, content, password):
     conn.commit()
     conn.close()
 
-def get_comments_by_post_id(post_id):
+def get_comments_by_post_id(post_id: int) -> List[Dict[str, Any]]:
     """
     특정 게시글의 댓글 목록 조회
     """
@@ -62,7 +63,7 @@ def get_comments_by_post_id(post_id):
     conn.close()
     return [dict(row) for row in rows]
 
-def delete_comment(comment_id, password):
+def delete_comment(comment_id: int, password: str) -> bool:
     """
     비밀번호 일치 시 댓글 삭제
     """
