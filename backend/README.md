@@ -17,7 +17,8 @@
 FastAPI 기반 백엔드 서버 구동
 - 실행 명령어 :
 ```bash
-uvicorn backend.server:app --reload --host 127.0.0.1 --port 8000 # 윈도우
+uvicorn backend.server:app --reload --host 127.0.0.1 --port 8000 #윈도우
+python backend/server.py #IOS
 ```
 
 ### IV-1. FastAPI 스트리밍 라우터
