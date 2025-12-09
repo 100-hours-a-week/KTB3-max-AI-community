@@ -73,7 +73,8 @@ deactivate #가상환경 종료
 ```
 2. 서버 구동
 ```bash
-uvicorn backend.server:app --reload --host 127.0.0.1 --port 8000 #윈도우 기준
+uvicorn backend.server:app --reload --host 127.0.0.1 --port 8000 #윈도우
+python backend/server.py #IOS
 ```
 3. `http://127.0.0.1:8000` 로컬 서버 접속
 
@@ -102,3 +103,6 @@ uvicorn backend.server:app --reload --host 127.0.0.1 --port 8000 #윈도우 기�
 |![](https://velog.velcdn.com/images/swoo64/post/0441fac4-1f81-4b6b-8bb0-feea0213db67/image.png)|![](https://velog.velcdn.com/images/swoo64/post/ac6d8450-456d-436e-99fb-46e16ecf8f44/image.png)|![](https://velog.velcdn.com/images/swoo64/post/9159dec0-ee60-4877-90ba-0193d411e019/image.png)|![](https://velog.velcdn.com/images/swoo64/post/fdbd6694-a6f4-4720-85c4-ebcb9f7ae3ad/image.png)|
 
 ## 회고
+1. `ultralytics`가 제공하는 `YOLO11n` 모델은 기본적인 컴퓨팅 환경에서도 작동 속도가 굉장하다. 비록 객체탐지의 정확성은 낮지만, 시간 지연이 거의 없다시피하여 30프레임의 영상을 실시간으로 출력 가능하다. 모바일의 로컬 구동에서도 해당 이점을 사용할 수 있을 것으로 전망된다.
+2. 백엔드의 설계는 복잡하다. 특히 프론트엔드와의 통신이 아닌 백엔드끼리의 통신에서 API의 중요성이 크다는 것을 알게되었다. YOLO를 통한 객체 탐지 및 이미지프레임 처리 로직은 쉽게 구현할 수 있지만, 게시글과 댓글의 DB에 대해 CRUD를 구현하는것은 바이브코딩에 의존할 수 밖에 없었다. 리펙토링분석을 통해 어떻게 서로 연결되어있는지 면밀한 분석이 필요하다.
+3. FastAPI를 사용하니 프론트엔드를 전혀 몰라도 파이썬만으로 통신이 가능하게 할 수 있다. 게다가 그 사용법도 쉬운편이여서 쉽게 체화 가능할 수 있다.
