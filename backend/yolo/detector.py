@@ -12,7 +12,7 @@ class ObjectDetector:
     def __init__(self, model_path="./backend/yolo/yolo11n.pt"): #YOLO모델 다운로드 혹은 로컬파일 로드 경로 지정
         try:
             self.model = YOLO(model_path)
-            self.names = self.model.names #모데리 알고 있는 클래스들의 이름을 딕셔너리 형태로 불러온다
+            self.names = self.model.names #모델이 알고 있는 클래스들의 이름을 딕셔너리 형태로 불러온다
             print("Model loaded successfully.")
         except Exception as e: #오류 발생 시
             print(f"Error loading model: {e}")
